@@ -84,4 +84,20 @@ createConstraint(Id, Floor):-
 getId(SpaceVar, Id):-
 	arg(SpaceVar(1, SpaceVar, Id).
 
-get
+getH(SpaceVar, VarH):-
+	arg(SpaceVar,2,VarH).
+
+geth(SpaceVar, Varh):-
+	arg(SpaceVar, 3, Varh).
+
+getV(SpaceVar, V):-
+	arg(SpaceVar, 4, V).
+
+getv(SpaceVar, Varv):-
+	arg(SpaceVar, 5, Varv).
+
+getRatio(SpaceVar, Ratio):-
+	arg(SpaceVar, 6, Ratio).
+
+getSurf(SpaceVar, Surf):-
+	arg(SpaceVar, 7, Surf).

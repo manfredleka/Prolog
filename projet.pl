@@ -50,37 +50,89 @@ adj(corridor1, [corridor2]).
 %	v,
 %	ratio,
 %	surf,
-%	[LLX, LLY, ULX, ULY, URX, URY, LRX, LRY],
+%	[Xi, Hi, Yi, Vi] || [[Xi,H,Yi,V-v],[Xi,H-h,Yi,v]],
 %	orientation
 %	)
 
 % home = [room1, room2, ...., roomN]
 
 % ------------------------------------------------------------------------VARIABLES
-% Initializes variables H V h v Ratio Surf
-createSpaceVars(Id, Y):-
-	space(Id, Type, Name, MinH, MaxH, Minh, Maxh, MinV, MaxV, Minv, Maxv, MinRatio, MaxRatio, MinSurf, MaxSurf),
+% Initializes variables H V h v Ratio Surf plus the coordinates
+createFloorVars(Z):-
+	space(0, _, _, MinH, MaxH, Minh, Maxh, MinV, MaxV, Minv, Maxv, MinRatio, MaxRatio, MinSurf, MaxSurf),
 	VarH in MinH..MaxH,
 	Varh in Minh..Maxh,
 	VarV in MinV..MaxV,
 	Varv in Minv..Maxv,
 	VarRatio in MinRatio..MaxRatio,
 	VarSurf in MinSurf..MaxSurf,
-	Y = spaceVar(Id, VarH, Varh, VarV, Varv, VarRatio, VarSurf, _, _).
+	X in 0..0,
+	Y in 0..0,
+	H #= VarH,
+	V #= VarV,
+	Z = spaceVar(Id, VarH, Varh, VarV, Varv, VarRatio, VarSurf, [X,H,Y,V], []).
 
-% -------------------------------------------------------------------------CONSTRAINTS
-% Position constraints  
-createConstraint(Id, Floor):-
+% Create the position variables and take care of position constraints and adjacency of the two parts of L shaped rooms
+createSpaceVars(Id, Z):-
+	space(Id, _, _, MinH, MaxH, Minh, Maxh, MinV, MaxV, Minv, Maxv, MinRatio, MaxRatio, MinSurf, MaxSurf),
+	getCoordinates(Floor, [FloorX, FloorH, FloorY, FloorV]),
+	RX1 in 0..FloorH,
+	RY1 in 0..FloorV,
+	RH in MinH..MaxH;
+	RV in MinV..MaxV,
+	Rv in Minv..Maxv,
+	Rh in Minh..Maxh,
+	Ratio in MinRatio..MaxRatio,
+	Surf in MinSurf..MaxSurf,
+	(Maxv =:= 0 ->
+		% if room is rectangular
+		RX1 + RH #=< FloorH,
+		RY1 + RV #=< FloorV,
+		W = [RX1, RH, RY1, RV];
+
+		% else room is L shaped, consider the two rectangular subrooms
+		% first main one of H*(V-v)
+		RX1 + RH #=< FloorH,
+		RV1 in 0..FloorV,
+		RV1 #= RV - Rv,
+		RY1 + RV1 #=< FloorV,
+		% second one 
+		RX2 in 0..FloorH,
+		RY2 in 0..FloorV,
+		% adjacency of the second part to the first one
+		((RX2 #= RX1) #\ (RX2 #= RX1 + h)) #/\ ((RY2 #= RY1 - Rv) #\ (RY2 #= RY1 + RV - Rv)),
+		RH2 in 0..FloorH,
+		RH2 #= RH - Rh,
+		RX2 + RH2 #=< FloorH,
+		RY2 + Rv #=< FloorV,
+		W = [[RX1, RH, RY1, RV1], [RX2, RH2, RY2, Rv]]
+	)
+	Z = spaceVar(Id, RH, Rh, RV, Rv, Ratio, Surf, W, []).
+
+% Orientation constraints for rectangular rooms
+orientationConstraints([X,H,Y,V], [n|Xs]):-
+	getCoordinates()
+	X + V #= 
 
 % Adjacency constraints
+	% /!\ different types of L shaped rooms
+	% Update a graph object on which circuit will be ran later
+adjacencyConstraint(SpaceVar, []).
+adjacencyConstraint(SpaceVar, [SpaceVarAdj|Xs]):-
 
-% Orientation constraints
 
 % Non overlapping constraints
 
 % Accessibility constraint
 
 %-------------------------------------------------------------------------GETTERS
+getSpaceVar([SpaceVar1 | SpaceVars], Id, SpaceVar):-
+	getId(SpaceVar1, Id1),
+	(Id1 =:= Id -> 
+		SpaceVar = SpaceVar1;
+		getSpaceVar(SpaceVars),Id,SpaceVar
+	).
+	
 getId(SpaceVar, Id):-
 	arg(SpaceVar(1, SpaceVar, Id).
 
@@ -101,3 +153,6 @@ getRatio(SpaceVar, Ratio):-
 
 getSurf(SpaceVar, Surf):-
 	arg(SpaceVar, 7, Surf).
+
+getCoordinates(SpaceVar, X):-
+	arg(SpaceVar, 8, [LLX, LLY, ULX, ULY, URX, URY, LRX, LRY]).

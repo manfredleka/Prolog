@@ -1,10 +1,14 @@
 % ----------------------- PROJET PROLOG
 % - Floor planning problem
+% hypothesis 
+%	only one floor
+%	door of 1m width
+%	adjacency constraints between room garanty accessibility constraints for all the rooms
 
-use_module(library(clpfd)).
+:- use_module(library(clpfd)).
 
+%-----------------------------------------------------------------------PROBLEM DEFINITION
 
-% - définition contraintes
 % space(kind, name, min_H, max_H, min_h, max_h, min_V, max_V,  min_v, max_v, min_ratio, max_ratio,
 % min_surf, max_surf).
 space(0, floor , home , 12, 12, 0, 0, 10, 10, 0, 0, _, _, 120, 120).
@@ -56,7 +60,7 @@ adj(corridor1, [corridor2]).
 
 % home = [room1, room2, ...., roomN]
 
-% ------------------------------------------------------------------------VARIABLES
+% ----------------------------------------------------------------------------VARIABLES & POSITION CONSTRAINTS
 % Initializes variables H V h v Ratio Surf plus the coordinates
 createFloorVars(Z):-
 	space(0, _, _, MinH, MaxH, Minh, Maxh, MinV, MaxV, Minv, Maxv, MinRatio, MaxRatio, MinSurf, MaxSurf),
@@ -68,9 +72,7 @@ createFloorVars(Z):-
 	VarSurf in MinSurf..MaxSurf,
 	X in 0..0,
 	Y in 0..0,
-	H #= VarH,
-	V #= VarV,
-	Z = spaceVar(Id, VarH, Varh, VarV, Varv, VarRatio, VarSurf, [X,H,Y,V], []).
+	Z = spaceVar(Id, VarH, Varh, VarV, Varv, VarRatio, VarSurf, [X,VarH,Y,VarV], []).
 
 % Create the position variables and take care of position constraints and adjacency of the two parts of L shaped rooms
 createSpaceVars(Id, Z):-
@@ -78,7 +80,7 @@ createSpaceVars(Id, Z):-
 	getCoordinates(Floor, [FloorX, FloorH, FloorY, FloorV]),
 	RX1 in 0..FloorH,
 	RY1 in 0..FloorV,
-	RH in MinH..MaxH;
+	RH in MinH..MaxH,
 	RV in MinV..MaxV,
 	Rv in Minv..Maxv,
 	Rh in Minh..Maxh,
@@ -106,33 +108,70 @@ createSpaceVars(Id, Z):-
 		RX2 + RH2 #=< FloorH,
 		RY2 + Rv #=< FloorV,
 		W = [[RX1, RH, RY1, RV1], [RX2, RH2, RY2, Rv]]
-	)
+	),
 	Z = spaceVar(Id, RH, Rh, RV, Rv, Ratio, Surf, W, []).
 
-% Orientation constraints for rectangular rooms
-orientationConstraints([X,H,Y,V], [n|Xs]):-
-	getCoordinates()
-	X + V #= 
+% ---------------------------------------------------------------------------------ORIENTATION CONSTRAINTS
+orientationConstraint(_, _, [], _, []).
+orientationConstraint(Room, Floor, [X| Xs], Z, A):-
+	orientationConstraint(Room, Floor, X, Z, B),
+	orientationConstraint(Room, Floor, Xs, Z, C),
+	A = B #\/ C.
+% for rectangular rooms
+orientationConstraint([RoomX,RoomH,RoomY,RoomV], [FloorX, FloorH, FloorY, FloorV], n, A):-
+	A = (RoomY + RoomV #= FloorV).
+orientationConstraint([RoomX,RoomH,RoomY,RoomV],[FloorX, FloorH, FloorY, FloorV],  s, A):-
+	A = (RoomY #= 0).
+orientationConstraint([RoomX,RoomH,RoomY,RoomV],[FloorX, FloorH, FloorY, FloorV],  e, A):-
+	A = (RoomX + RoomH #= FloorH).
+orientationConstraint([RoomX,RoomH,RoomY,RoomV],[FloorX, FloorH, FloorY, FloorV],  o, A):-
+	A = (RoomX #= 0).
+orientationConstraint(RoomCoord, FloorCoord, ne, A):-
+	orientationConstraint(RoomCoord, FloorCoord, n, B),
+	orientationConstraint(RoomCoord, FloorCoord, e, C),
+	A = B #/\ C.
+orientationConstraint([RoomX,RoomH,RoomY,RoomV],[FloorX, FloorH, FloorY, FloorV],  no, A):-
+	orientationConstraint(RoomCoord, FloorCoord, n, B),
+	orientationConstraint(RoomCoord, FloorCoord, o, C),
+	A = B #/\ C.	
+orientationConstraint([RoomX,RoomH,RoomY,RoomV],[FloorX, FloorH, FloorY, FloorV],  so, A):-
+	orientationConstraint(RoomCoord, FloorCoord, s, B),
+	orientationConstraint(RoomCoord, FloorCoord, o, C),
+	A = B #/\ C.
+orientationConstraint([RoomX,RoomH,RoomY,RoomV],[FloorX, FloorH, FloorY, FloorV],  se, A):-
+	orientationConstraint(RoomCoord, FloorCoord, s, B),
+	orientationConstraint(RoomCoord, FloorCoord, e, C),
+	A = B #/\ C.
 
-% Adjacency constraints
+% for L shaped rooms
+	% /!\ SYNTAXE POUR LISTE DE LISTE ?
+orientationConstraint([[Room1], [Room2]], Floor, X, A):-
+	orientationConstraint(Room1, Floor, X, B),
+	orientationConstraint(Room2, Floor, X, C),
+	A = B #\/ C.
+
+
+% -----------------------------------------------------------------------------------ADJACENCY CONSTRAINTS
 	% /!\ different types of L shaped rooms
-	% Update a graph object on which circuit will be ran later
-adjacencyConstraint(SpaceVar, []).
-adjacencyConstraint(SpaceVar, [SpaceVarAdj|Xs]):-
+	% Update a graph object on which the circuit constraint will be ran later
+% adjacency constraaint btween two rectangles
+adjacencyConstraint([X1, H1, Y1, V1], [X2, H2, Y2, V2]):-
+	(X2 #>= X1) #/\ (X2 + 1 #=< X1 + H1) #/\ ((Y2 #= Y1 + V1 ) #\ (Y2 #= Y1)).
+
+adjacencyConstraint([[Room1], [Room2]], Room3):-
+	adjacencyConstraint(Room1, Room3),
+	adjancecy
+%adjacencyConstraint(SpaceVar, [SpaceVarAdj|Xs]):-
 
 
-% Non overlapping constraints
+% Non overlapping constraints DISJOINT 
 
-% Accessibility constraint
+% ----------------------------------------------------------------------------------- ACCESSIBILITY CONSTRAINT
+	% must be induced by adjacency constraints 
 
-%-------------------------------------------------------------------------GETTERS
-getSpaceVar([SpaceVar1 | SpaceVars], Id, SpaceVar):-
-	getId(SpaceVar1, Id1),
-	(Id1 =:= Id -> 
-		SpaceVar = SpaceVar1;
-		getSpaceVar(SpaceVars),Id,SpaceVar
-	).
-	
+% ----------------------------------------------------------------------------------- NON OVERLAPPING CONSTRAINT
+
+%-------------------------------------------------------------------------------------GETTERS
 getId(SpaceVar, Id):-
 	arg(SpaceVar(1, SpaceVar, Id).
 
@@ -155,4 +194,8 @@ getSurf(SpaceVar, Surf):-
 	arg(SpaceVar, 7, Surf).
 
 getCoordinates(SpaceVar, X):-
-	arg(SpaceVar, 8, [LLX, LLY, ULX, ULY, URX, URY, LRX, LRY]).
+	arg(SpaceVar, 8, X).
+
+% ---------------------------------------------------------------- MAIN é&ALGORIHM
+main():-
+	%set of to get list of everyroom

@@ -15,6 +15,9 @@
 % create variables for rooms and floor
 :- consult(createVariables).
 
+% surface constraints
+:- consult(surfaceConstraints).
+
 % non overlapping constraints
 :- consult(nonOverlappingConstraints).
 
@@ -23,4 +26,18 @@
 
 % main algorithm
 main():-
-	write('start').
+	writeln('beginning main'),
+	% writeln('retrieving space facts'),
+	% bagof((N, A, B, C, D, E, F, G, H, I, J, K, L, M, O), space(N,A,B,C,D,E,F,G,H,I,J,K,L,M,O), SpaceFactList),
+	IdMax = 10,
+	cleanDB(IdMax),
+	createSpaceVar(0,_,FloorSpaceVar),
+	createVariables(IdMax, FloorSpaceVar, SpaceVarList),
+	postSurfaceConstraints(IdMax, FloorSpaceVar, SpaceVarList),
+	postOrientationConstraints(IdMax, FloorSpaceVar, SpaceVarList),
+	postAdjacencyConstraints(IdMax, FloorSpaceVar, SpaceVarList),
+	postNonOverlappingConstraints(IdMax, FloorSpaceVar, SpaceVarList),
+
+
+
+

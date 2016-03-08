@@ -24,5 +24,8 @@ testListe([A,B], C, D):-
 	C = A,
 	D = B.
 
-azy(A):-
+azy(_):-
 	write('aziiiiii').
+
+groupeSpace(S):-
+	bagof((N, A, B, C, D, E, F, G, H, I, J, K, L, M, O), space(N=\=0,A,B,C,D,E,F,G,H,I,J,K,L,M,O), S).

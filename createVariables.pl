@@ -1,7 +1,16 @@
 % Create variables with respect to chosen data structure for floor and rooms
+createVariables(0, _, _).
+
+createVariables(N, Floor, SpaceVarList):-
+	N > 0,
+	createSpaceVar(N, Floor, Z),
+	SpaceVarList = [Z | SpaceVarList],
+	N1 is N - 1,
+	createVariables(N1, Floor, SpaceVarList).
+
 
 % Initializes variables H V h v Ratio Surf plus the coordinates
-createFloorVars(Z):-
+createSpaceVar(0, _, Z):-
 	space(0, _, Name, MinH, MaxH, Minh, Maxh, MinV, MaxV, Minv, Maxv, _, _, MinSurf, MaxSurf),
 	VarH in MinH..MaxH,
 	Varh in Minh..Maxh,
@@ -13,7 +22,7 @@ createFloorVars(Z):-
 	Z = spaceVar(Id, VarH, Varh, VarV, Varv, VarSurf, [[X,VarH,Y,VarV],[]], Name).
 
 % Create the position variables and take care of position constraints and adjacency of the two parts of L shaped rooms
-createSpaceVars(Id, Floor, Z):-
+createSpaceVar(Id, Floor, Z):-
 	space(Id, _, Name, MinH, MaxH, Minh, Maxh, MinV, MaxV, Minv, Maxv, _, _, MinSurf, MaxSurf),
 	getCoordinates(Floor, [FloorX, FloorH, FloorY, FloorV]),
 	RX1 in 0..FloorH,

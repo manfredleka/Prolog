@@ -23,3 +23,6 @@ testCleanDB(N):-
 testListe([A,B], C, D):-
 	C = A,
 	D = B.
+
+azy(A):-
+	write('aziiiiii').

@@ -1,5 +1,5 @@
 % clean the database facts, determines values for MaxH and MaxV based on MinSurf, MinV, MinH 
-									% TEST OK
+
 cleanDB(-1).
 cleanDB(N):-
 	N >= 0,

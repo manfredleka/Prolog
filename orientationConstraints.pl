@@ -2,7 +2,6 @@
 
 % NEED SOME FUNCTION TO COLLECT ALL CONSTRAINTS AND POST THEM
 
-
 % return empty list for no orientation constraint
 orientationConstraint(_, _, [], _, []).
 

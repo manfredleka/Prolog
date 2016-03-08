@@ -1,13 +1,17 @@
 % NON OVERLAPPING CONSTRAINT
 
-% ATTENTION REMPLACER SPACE VAR PAR COORDINATES
-nonOverlapping([]).
+nonOverlapping([], _, []).
+nonOverlapping(_, [], []).
 
-nonOverlapping([SpaceVar1 | SpaceVars]):-
-	nonOverlapping(SpaceVar1, SpaceVars).
+nonOverlapping([X1,H1,Y1,V1], [X2,H2,Y2,V2], A):-
+	A = ((X2 #>= X1 + H1) #\ (X1 #>= X2 + H2)) #/\ ((Y2 #>= Y1 + V1) #\ (Y1 #>= Y2 + V2)).
 
-nonOverlapping( _ , []).
-nonOverlapping(SpaceVar1, [SpaceVar2 | SpaceVars]):-
-	disjoint(SpaceVar1, SpaceVar2),
-	nonOverlapping(SpaceVar1, SpaceVars),
-	nonOverlapping([SpaceVar2 | SpaceVars]).
+nonOverlapping([Room1, Room2], Room3, A):-
+	nonOverlapping(Room1, Room3, B),
+	nonOverlapping(Room2, Room3, C),
+	A = B #/\ C.
+
+nonOverlapping(Room1, [Room2, Room3], A):-
+	nonOverlapping(Room1, Room2, B),
+	nonOverlapping(Room1, Room3, C),
+	A = B #/\ C.

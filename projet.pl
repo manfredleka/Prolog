@@ -61,22 +61,35 @@ adj(corridor1, [corridor2]).
 % home = [room1, room2, ...., roomN]
 
 % ----------------------------------------------------------------------------VARIABLES & POSITION CONSTRAINTS
+% clean the database facts, determines values for _ in 
+cleanDB(-1).
+cleanDB(N):-
+	N >= 0,
+	space(N, Type, Name, MinH, MaxH, Minh, Maxh, MinV, MaxV, Minv, Maxv, _, _, MinSurf, MaxSurf),
+	(var(MaxH), var(MaxV), nonvar(MinSurf), nonvar(MaxSurf)	-> 
+		MaxH = MaxSurf / MinV,
+		MaxV = MaxSurf / MinH,
+		retract(space(N, _, _, _, _, _, _, _, _, _, _, _, _, _, _),
+		asserta(space(N, Type, Name, MinH, MaxH, Minh, Maxh, MinV, MaxV, Minv, Maxv, _, _, MinSurf, MaxSurf)
+	),
+	N1 is N-1,
+	cleanDB(N1).
+
 % Initializes variables H V h v Ratio Surf plus the coordinates
 createFloorVars(Z):-
-	space(0, _, _, MinH, MaxH, Minh, Maxh, MinV, MaxV, Minv, Maxv, MinRatio, MaxRatio, MinSurf, MaxSurf),
+	space(0, _, Name, MinH, MaxH, Minh, Maxh, MinV, MaxV, Minv, Maxv, _, _, MinSurf, MaxSurf),
 	VarH in MinH..MaxH,
 	Varh in Minh..Maxh,
 	VarV in MinV..MaxV,
 	Varv in Minv..Maxv,
-	VarRatio in MinRatio..MaxRatio,
 	VarSurf in MinSurf..MaxSurf,
 	X in 0..0,
 	Y in 0..0,
-	Z = spaceVar(Id, VarH, Varh, VarV, Varv, VarRatio, VarSurf, [X,VarH,Y,VarV], []).
+	Z = spaceVar(Id, VarH, Varh, VarV, Varv, VarSurf, [X,VarH,Y,VarV], Name).
 
 % Create the position variables and take care of position constraints and adjacency of the two parts of L shaped rooms
 createSpaceVars(Id, Z):-
-	space(Id, _, _, MinH, MaxH, Minh, Maxh, MinV, MaxV, Minv, Maxv, MinRatio, MaxRatio, MinSurf, MaxSurf),
+	space(Id, _, Name, MinH, MaxH, Minh, Maxh, MinV, MaxV, Minv, Maxv, _, _, MinSurf, MaxSurf),
 	getCoordinates(Floor, [FloorX, FloorH, FloorY, FloorV]),
 	RX1 in 0..FloorH,
 	RY1 in 0..FloorV,
@@ -84,7 +97,6 @@ createSpaceVars(Id, Z):-
 	RV in MinV..MaxV,
 	Rv in Minv..Maxv,
 	Rh in Minh..Maxh,
-	Ratio in MinRatio..MaxRatio,
 	Surf in MinSurf..MaxSurf,
 	(Maxv =:= 0 ->
 		% if room is rectangular
@@ -109,36 +121,45 @@ createSpaceVars(Id, Z):-
 		RY2 + Rv #=< FloorV,
 		W = [[RX1, RH, RY1, RV1], [RX2, RH2, RY2, Rv]]
 	),
-	Z = spaceVar(Id, RH, Rh, RV, Rv, Ratio, Surf, W, []).
+	Z = spaceVar(Id, RH, Rh, RV, Rv, Surf, W, Name).
 
 % ---------------------------------------------------------------------------------ORIENTATION CONSTRAINTS
 orientationConstraint(_, _, [], _, []).
+
 orientationConstraint(Room, Floor, [X| Xs], Z, A):-
 	orientationConstraint(Room, Floor, X, Z, B),
 	orientationConstraint(Room, Floor, Xs, Z, C),
 	A = B #\/ C.
+
 % for rectangular rooms
-orientationConstraint([RoomX,RoomH,RoomY,RoomV], [FloorX, FloorH, FloorY, FloorV], n, A):-
+orientationConstraint([_,_,RoomY,RoomV], [_, _, _, FloorV], n, A):-
 	A = (RoomY + RoomV #= FloorV).
-orientationConstraint([RoomX,RoomH,RoomY,RoomV],[FloorX, FloorH, FloorY, FloorV],  s, A):-
+
+orientationConstraint([_,_,RoomY,_],[_, _, _, _],  s, A):-
 	A = (RoomY #= 0).
-orientationConstraint([RoomX,RoomH,RoomY,RoomV],[FloorX, FloorH, FloorY, FloorV],  e, A):-
+
+orientationConstraint([RoomX,RoomH,_,_],[_, FloorH, _, _],  e, A):-
 	A = (RoomX + RoomH #= FloorH).
-orientationConstraint([RoomX,RoomH,RoomY,RoomV],[FloorX, FloorH, FloorY, FloorV],  o, A):-
+
+orientationConstraint([RoomX,_,_,_],[_, _, _, _],  o, A):-
 	A = (RoomX #= 0).
+
 orientationConstraint(RoomCoord, FloorCoord, ne, A):-
 	orientationConstraint(RoomCoord, FloorCoord, n, B),
 	orientationConstraint(RoomCoord, FloorCoord, e, C),
 	A = B #/\ C.
-orientationConstraint([RoomX,RoomH,RoomY,RoomV],[FloorX, FloorH, FloorY, FloorV],  no, A):-
+
+orientationConstraint(RoomCoord,FloorCoord,  no, A):-
 	orientationConstraint(RoomCoord, FloorCoord, n, B),
 	orientationConstraint(RoomCoord, FloorCoord, o, C),
-	A = B #/\ C.	
-orientationConstraint([RoomX,RoomH,RoomY,RoomV],[FloorX, FloorH, FloorY, FloorV],  so, A):-
+	A = B #/\ C.
+
+orientationConstraint(RoomCoord,FloorCoord,  so, A):-
 	orientationConstraint(RoomCoord, FloorCoord, s, B),
 	orientationConstraint(RoomCoord, FloorCoord, o, C),
 	A = B #/\ C.
-orientationConstraint([RoomX,RoomH,RoomY,RoomV],[FloorX, FloorH, FloorY, FloorV],  se, A):-
+
+orientationConstraint(RoomCoord,FloorCoord,  se, A):-
 	orientationConstraint(RoomCoord, FloorCoord, s, B),
 	orientationConstraint(RoomCoord, FloorCoord, e, C),
 	A = B #/\ C.
@@ -152,26 +173,30 @@ orientationConstraint([[Room1], [Room2]], Floor, X, A):-
 
 
 % -----------------------------------------------------------------------------------ADJACENCY CONSTRAINTS
-	% /!\ different types of L shaped rooms
-	% Update a graph object on which the circuit constraint will be ran later
-% adjacency constraaint btween two rectangles
-adjacencyConstraint([X1, H1, Y1, V1], [X2, H2, Y2, V2]):-
-	(X2 #>= X1) #/\ (X2 + 1 #=< X1 + H1) #/\ ((Y2 #= Y1 + V1 ) #\ (Y2 #= Y1)).
 
-adjacencyConstraint([[Room1], [Room2]], Room3):-
-	adjacencyConstraint(Room1, Room3),
-	adjancecy
-%adjacencyConstraint(SpaceVar, [SpaceVarAdj|Xs]):-
+% adjacency constraint btween two rectangles with an intersection of at least 1 meter width for a door
+adjacencyConstraint([X1, H1, Y1, V1], [X2, H2, Y2, V2], A):-
+	A = (X2 #>= X1) #/\ (X2 + 1 #=< X1 + H1) #/\ ((Y2 #= Y1 + V1 ) #\ (Y2 #= Y1)).
 
-
-% Non overlapping constraints DISJOINT 
-
-% ----------------------------------------------------------------------------------- ACCESSIBILITY CONSTRAINT
-	% must be induced by adjacency constraints 
+adjacencyConstraint([[Room1], [Room2]], Room3, A):-
+	adjacencyConstraint(Room1, Room3, B),
+	adjacencyConstraint(Room2, Room3, C),
+	A = B #\/ C.
 
 % ----------------------------------------------------------------------------------- NON OVERLAPPING CONSTRAINT
+nonOverlapping([]).
 
-%-------------------------------------------------------------------------------------GETTERS
+nonOverlapping([SpaceVar1 | SpaceVars]):-
+	nonOverlapping(SpaceVar1, SpaceVars).
+
+nonOverlapping( _ , []).
+nonOverlapping(SpaceVar1, [SpaceVar2 | SpaceVars]):-
+	disjoint(SpaceVar1, SpaceVar2),
+	nonOverlapping(SpaceVar1, SpaceVars),
+	nonOverlapping([SpaceVar2 | SpaceVars]).
+
+
+% -------------------------------------------------------------------------------------GETTERS
 getId(SpaceVar, Id):-
 	arg(SpaceVar(1, SpaceVar, Id).
 
@@ -187,14 +212,14 @@ getV(SpaceVar, V):-
 getv(SpaceVar, Varv):-
 	arg(SpaceVar, 5, Varv).
 
-getRatio(SpaceVar, Ratio):-
-	arg(SpaceVar, 6, Ratio).
-
 getSurf(SpaceVar, Surf):-
-	arg(SpaceVar, 7, Surf).
+	arg(SpaceVar, 6, Surf).
 
 getCoordinates(SpaceVar, X):-
-	arg(SpaceVar, 8, X).
+	arg(SpaceVar, 7, X).
+
+getName(SpaceVar, X):-
+	arg(SpaceVar, 8).
 
 % ---------------------------------------------------------------- MAIN é&ALGORIHM
 main():-

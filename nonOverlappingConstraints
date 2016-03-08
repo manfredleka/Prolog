@@ -1,0 +1,13 @@
+% NON OVERLAPPING CONSTRAINT
+
+% ATTENTION REMPLACER SPACE VAR PAR COORDINATES
+nonOverlapping([]).
+
+nonOverlapping([SpaceVar1 | SpaceVars]):-
+	nonOverlapping(SpaceVar1, SpaceVars).
+
+nonOverlapping( _ , []).
+nonOverlapping(SpaceVar1, [SpaceVar2 | SpaceVars]):-
+	disjoint(SpaceVar1, SpaceVar2),
+	nonOverlapping(SpaceVar1, SpaceVars),
+	nonOverlapping([SpaceVar2 | SpaceVars]).

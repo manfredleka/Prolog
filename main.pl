@@ -30,19 +30,36 @@ main():-
 	% writeln('retrieving space facts'),
 	% bagof((N, A, B, C, D, E, F, G, H, I, J, K, L, M, O), space(N,A,B,C,D,E,F,G,H,I,J,K,L,M,O), SpaceFactList),
 	IdMax = 10,
-	writeln('initating facts cleaning')
+
+	writeln('initating facts cleaning'),
 	cleanDB(IdMax),
 	writeln('facts cleaned'),
+
 	writeln('initiating variables creation'),
 	createSpaceVar(0,_,FloorSpaceVar),
 	writeln('floor variables created'),
 	createVariables(IdMax, FloorSpaceVar, SpaceVarList),
 	writeln('rooms variables created'),
+
+	writeln('initiating surface constraints posting'),
 	postSurfaceConstraints(FloorSpaceVar, SpaceVarList, Sum),
-	writeln('')				% implemented
-	postOrientationConstraints(IdMax, FloorSpaceVar, SpaceVarList),
-	postAdjacencyConstraints(IdMax, FloorSpaceVar, SpaceVarList),
-	postNonOverlappingConstraints(IdMax, FloorSpaceVar, SpaceVarList),
+	writeln('surface constraints posted'),				% implemented
+
+	writeln('initiating orientation constraints posting'),
+	postOrientationConstraints(FloorSpaceVar, SpaceVarList),
+	writeln('orientation constraints posted'),			% implemented
+
+	writeln('iniating adjacency constraints posting'),
+	postAdjacencyConstraints(SpaceVarList),				% implemented
+	writeln('adjacency constraints posted'),
+
+	writeln('initiating non overlapping constraints posting'),
+	postNonOverlappingConstraints(SpaceVarList),
+	writeln('non overlapping constraints posted'),
+
+	
+
+
 
 
 

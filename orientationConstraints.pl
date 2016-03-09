@@ -1,18 +1,42 @@
 % Orientation constraints
+% handles each room orientation, ie to the north, west, east, south, etc...
+% for L shaped rooms, orientation constraint on room1 OR on room2 
+% for mutiple orientation, OR distribution
 
-% NEED SOME FUNCTION TO COLLECT ALL CONSTRAINTS AND POST THEM
+% post the collected constraints on all the rooms
+postOrientationConstraints(FloorSpaceVar, SpaceVarList):-
+	collectOrientationConstraints(FloorSpaceVar, SpaceVarList, A),
+	call(A).
+
+% collect constraints
+collectOrientationConstraints(_, [], A).
+
+collectOrientationConstraints(FloorSpaceVar, [SpaceVar | SpaceVarList], A):-
+	getName(SpaceVar, Name),
+	(contour(Name, X) ->
+		getCoordinates(SpaceVar, RoomCoord),
+		getCoordinates(FloorSpaceVar, FloorCoord),
+		orientationConstraint(RoomCoord, FloorCoord, X, B),
+		A = B #/\ A
+	),
+	collectOrientationConstraints(FloorSpaceVar, SpaceVarList, A).
 
 % return empty list for no orientation constraint
 orientationConstraint(_, _, [], _, []).
 
 % distribute potential orientation constraints
-orientationConstraint(Room, Floor, [X| Xs], Z, A):-
-	orientationConstraint(Room, Floor, X, Z, B),
-	orientationConstraint(Room, Floor, Xs, Z, C),
+orientationConstraint(RoomCoord, FloorCoord, [X| Xs], A):-
+	orientationConstraint(RoomCoord, FloorCoord, X, Z, B),
+	orientationConstraint(RoomCoord, FloorCoord, Xs, Z, C),
 	A = B #\/ C.
 
-% post constraints for rectangular rooms
+% distribute constraints on each subroom for L shaped rooms
+orientationConstraint([Room1, Room2], FloorCoord, X, A):-
+	orientationConstraint(Room1, FloorCoord, X, B),
+	orientationConstraint(Room2, FloorCoord, X, C),
+	A = B #\/ C.
 
+% collect constraints for rectangular rooms
 % return empty list for empty room 
 orientationConstraint([], _,_,_,[]).
 
@@ -48,8 +72,3 @@ orientationConstraint(RoomCoord,FloorCoord,  se, A):-
 	orientationConstraint(RoomCoord, FloorCoord, e, C),
 	A = B #/\ C.
 
-% for L shaped rooms
-orientationConstraint([Room1, Room2], Floor, X, A):-
-	orientationConstraint(Room1, Floor, X, B),
-	orientationConstraint(Room2, Floor, X, C),
-	A = B #\/ C.

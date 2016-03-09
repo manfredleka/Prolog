@@ -23,3 +23,13 @@ getCoordinates(SpaceVar, X):-
 
 getName(SpaceVar, X):-
 	arg(SpaceVar, 8).
+
+getSpaceVarFromName(_, [], _):- 
+	fail.
+	
+getSpaceVarFromName(SpaceVarName, [SpaceVar | SpaceVarList], X):-
+	(getName(SpaceVar, SpaceVarName) ->
+		X = SpaceVar;
+		getSpaceVarFromName(SpaceVarName, SpaceVarList, X)
+	).
+

@@ -5,6 +5,12 @@
 
 space(0, room , living , 4, _, 0, 0, 4, _, 0, 0, _, _, 33, 42).
 space(1, room , living , 4, _, 0, 0, 4, _, 0, 0, _, _, 33, 42).
+contour(living , [so]).
+
+testContour(X,Z):-
+	(contour(X,Z) -> writeln('azi')).
+
+
 
 testCleanDB(-1).
 testCleanDB(N):-
@@ -29,3 +35,5 @@ azy(_):-
 
 groupeSpace(S):-
 	bagof((N, A, B, C, D, E, F, G, H, I, J, K, L, M, O), space(N=\=0,A,B,C,D,E,F,G,H,I,J,K,L,M,O), S).
+
+

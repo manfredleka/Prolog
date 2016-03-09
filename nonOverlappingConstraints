@@ -1,5 +1,18 @@
 % NON OVERLAPPING CONSTRAINT
 
+
+postNonOverlappingConstraints([SpaceVar | SpaceVarList]):-
+	postNonOverlappingConstraints(SpaceVar, SpaceVarList).
+
+postNonOverlappingConstraints(_, []).
+
+postNonOverlappingConstraints(SpaceVar, [SpaceVar2 | SpaceVarList]):-
+	getCoordinates(SpaceVar, Room1Coord),
+	getCoordinates(SpaceVar2, Room2Coord),
+	nonOverlapping(Room1Coord, Room2Coord, A),
+	call(A),
+	postNonOverlappingConstraints(SpaceVar2, SpaceVarList).
+
 nonOverlapping([], _, []).
 nonOverlapping(_, [], []).
 
@@ -12,6 +25,4 @@ nonOverlapping([Room1, Room2], Room3, A):-
 	A = B #/\ C.
 
 nonOverlapping(Room1, [Room2, Room3], A):-
-	nonOverlapping(Room1, Room2, B),
-	nonOverlapping(Room1, Room3, C),
-	A = B #/\ C.
+	nonOverlapping([Room2, Room3], Room1, A).

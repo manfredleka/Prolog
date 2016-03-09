@@ -1,12 +1,13 @@
 % Surface constraints
 % ensure the dimensions of each room respects its own surface constraint
-% also ensures the sum of surfaces doesn't exceed the available surface in the room
+% also ensures the sum of surfaces doesnt exceed the available surface in the room
 
 postSurfaceConstraints(FloorSpaceVar, [], Sum):-
 	getSurf(FloorSpaceVar, Surf),
 	Sum #=< Surf.
 
 postSurfaceConstraints(FloorSpaceVar, [SpaceVar | SpaceVarList], Sum):-
+	(var(Sum) -> Sum #= 0),
 	getCoordinates(SpaceVar, [Room1, Room2]),
 	getSurf(SpaceVar, Surf),
 	computeSurf(Room1, Res1),

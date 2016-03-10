@@ -1,7 +1,7 @@
 % GETTERS
 
 getId(SpaceVar, Id):-
-	arg(SpaceVar(1, SpaceVar, Id).
+	arg(1, SpaceVar, Id).
 
 getH(SpaceVar, VarH):-
 	arg(SpaceVar,2,VarH).
@@ -18,18 +18,27 @@ getv(SpaceVar, Varv):-
 getSurf(SpaceVar, Surf):-
 	arg(SpaceVar, 6, Surf).
 
-getCoordinates(SpaceVar, X):-
-	arg(SpaceVar, 7, X).
+getCoordinates(SpaceVar, Coord):-
+	arg(SpaceVar, 7, Coord).
 
-getName(SpaceVar, X):-
-	arg(SpaceVar, 8).
+getName(SpaceVar, Name):-
+	arg(SpaceVar, 8, Name).
 
 getSpaceVarFromName(_, [], _):- 
 	fail.
-	
+
 getSpaceVarFromName(SpaceVarName, [SpaceVar | SpaceVarList], X):-
 	(getName(SpaceVar, SpaceVarName) ->
 		X = SpaceVar;
 		getSpaceVarFromName(SpaceVarName, SpaceVarList, X)
 	).
 
+
+getAllCoordinates(FloorSpaceVar, [], A):-
+	getCoordinates(FloorSpaceVar, FloorCoord),
+	A = FloorCoord.
+
+getAllCoordinates(FloorSpaceVar, [SpaceVar | SpaceVarList], A):-
+	getAllCoordinates(FloorSpaceVar, SpaceVarList, B),
+	getCoordinates(SpaceVar, Coord),
+	A = [Coord, B].

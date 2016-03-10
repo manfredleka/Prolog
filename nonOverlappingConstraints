@@ -9,20 +9,18 @@ postNonOverlappingConstraints(_, []).
 postNonOverlappingConstraints(SpaceVar, [SpaceVar2 | SpaceVarList]):-
 	getCoordinates(SpaceVar, Room1Coord),
 	getCoordinates(SpaceVar2, Room2Coord),
-	nonOverlapping(Room1Coord, Room2Coord, A),
-	call(A),
+	nonOverlapping(Room1Coord, Room2Coord),
 	postNonOverlappingConstraints(SpaceVar2, SpaceVarList).
 
-nonOverlapping([], _, []).
-nonOverlapping(_, [], []).
+nonOverlapping([], _ ).
+nonOverlapping(_, []).
 
-nonOverlapping([X1,H1,Y1,V1], [X2,H2,Y2,V2], A):-
-	A = ((X2 #>= X1 + H1) #\ (X1 #>= X2 + H2)) #/\ ((Y2 #>= Y1 + V1) #\ (Y1 #>= Y2 + V2)).
+nonOverlapping([X1,H1,Y1,V1], [X2,H2,Y2,V2]):-
+	(((X2 #>= X1 + H1) #\ (X1 #>= X2 + H2)) #/\ ((Y2 #>= Y1 + V1) #\ (Y1 #>= Y2 + V2))).
 
-nonOverlapping([Room1, Room2], Room3, A):-
-	nonOverlapping(Room1, Room3, B),
-	nonOverlapping(Room2, Room3, C),
-	A = B #/\ C.
+nonOverlapping([Room1, Room2], Room3):-
+	nonOverlapping(Room1, Room3),
+	nonOverlapping(Room2, Room3).
 
-nonOverlapping(Room1, [Room2, Room3], A):-
-	nonOverlapping([Room2, Room3], Room1, A).
+nonOverlapping(Room1, [Room2, Room3]):-
+	nonOverlapping([Room2, Room3], Room1).

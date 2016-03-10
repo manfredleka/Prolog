@@ -3,11 +3,12 @@
 % load constraint programming of finite domains library
 :- use_module(library(clpfd)).
 
+% make space definition dynamic to enable cleaning facts 
+:- dynamic space/15.
+
 % load problem definition 			NP
 :- consult(problem).
 
-% make space definition dynamic to enable cleaning facts 
-:- dynamic space/15.
 
 % load cleaning rules for space facts 				TEST OK
 :- consult(cleanRules).
@@ -24,11 +25,18 @@
 % getters
 :- consult(getters).
 
+% compute lost space
+getSum([], 0).
+
+getSum([SpaceVar | SpaceVarList], Sum):-
+	getSum(SpaceVarList, Sum1),
+	getSurf(SpaceVar, Surf),
+	Sum #= Sum1 + Surf.
+
 % main algorithms
 main():-
 	writeln('beginning main'),
-	% writeln('retrieving space facts'),
-	% bagof((N, A, B, C, D, E, F, G, H, I, J, K, L, M, O), space(N,A,B,C,D,E,F,G,H,I,J,K,L,M,O), SpaceFactList),
+
 	IdMax = 10,
 
 	writeln('initating facts cleaning'),
@@ -43,24 +51,29 @@ main():-
 
 	writeln('initiating surface constraints posting'),
 	postSurfaceConstraints(FloorSpaceVar, SpaceVarList, Sum),
-	writeln('surface constraints posted'),				% implemented
+	writeln('surface constraints posted'),				% checked
 
 	writeln('initiating orientation constraints posting'),
 	postOrientationConstraints(FloorSpaceVar, SpaceVarList),
-	writeln('orientation constraints posted'),			% implemented
+	writeln('orientation constraints posted'),			% checked
 
 	writeln('iniating adjacency constraints posting'),
-	postAdjacencyConstraints(SpaceVarList),				% implemented
+	postAdjacencyConstraints(SpaceVarList),				% checked
 	writeln('adjacency constraints posted'),
 
 	writeln('initiating non overlapping constraints posting'),
 	postNonOverlappingConstraints(SpaceVarList),
-	writeln('non overlapping constraints posted'),
+	writeln('non overlapping constraints posted'),		% checked
 
-	
+	writeln('initiating labeling'),
+	% compute lost space
+	space(0, floor , _ , _, _, _, _, _, _, _, _, _, _, _, MaxSurf),
+	LostSpace in 0..MaxSurf,
+	getSurf(FloorSpaceVar, FloorSurf),
+	getSum(SpaceVarList, Sum),
+	LostSpace #= FloorSurf - Sum,
 
-
-
-
-
-
+	% collect the list of variables 
+	getAllCoordinates(FloorSpaceVar, SpaceVarList, AllVariables),
+	% orders the minimizing of lost space as solving strategy
+	labeling(min(LostSpace), AllVariables).

@@ -24,7 +24,7 @@ createSpaceVar(0, _, Z):-
 % Create the position variables and take care of position constraints and adjacency of the two parts of L shaped rooms
 createSpaceVar(Id, Floor, Z):-
 	space(Id, _, Name, MinH, MaxH, Minh, Maxh, MinV, MaxV, Minv, Maxv, _, _, MinSurf, MaxSurf),
-	getCoordinates(Floor, [FloorX, FloorH, FloorY, FloorV]),
+	getCoordinates(Floor, [_, FloorH, _, FloorV]),
 	RX1 in 0..FloorH,
 	RY1 in 0..FloorV,
 	RH in MinH..MaxH,

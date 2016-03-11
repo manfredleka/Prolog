@@ -5,42 +5,33 @@
 
 % post the collected constraints on all the rooms
 
-postOrientationConstraints(_, []).
+postOrientationConstraints([], _, _).
 
-postOrientationConstraints(FloorSpaceVar, [SpaceVar | SpaceVarList]):-
-	postOrientationConstraints(FloorSpaceVar, SpaceVarList),
-	getName(SpaceVar, SpaceVarName),
-	contour(SpaceVarName, X),
-	(nonvar(X) -> 
-		getCoordinates(SpaceVar, SpaceVarCoord),
-		getCoordinates(FloorSpaceVar, FloorCoord),
-		orientationConstraint(SpaceVarCoord, FloorCoord, X, A),
-		call(A)
-	).
+postOrientationConstraints([RoomName | RoomNames], SpaceVarList, FloorSpaceVar):-
+	postOrientationConstraints(RoomNames, SpaceVarList, FloorSpaceVar),
+	contour(RoomName, OrientationList),
+	getSpaceVarFromName(RoomName, SpaceVarList, RoomSpaceVar),
+	getCoordinates(RoomSpaceVar, RoomCoord),
+	getOrientationConstraint(RoomCoord, OrientationList, FloorSpaceVar, A),
+	call(A).
 
+getOrientationConstraint(_,[],_, _).
 
+getOrientationConstraint(RoomCoord, [AltOrientation1 | Alts], FloorSpaceVar, A):-
+	getOrientationConstraint(RoomCoord, Alts, FloorSpaceVar, C),
+	buildOrientationConstraint(RoomCoord, AltOrientation1, FloorSpaceVar, B),
+	(nonvar(C) -> A = (B #\/ C); A = B).
 
-% return whatever for no orientation constraint
-orientationConstraint(_, _, [], _, _).
+buildOrientationConstraint([Room1, Room2], Orientation, FloorSpaceVar, A):-
+	getCoordinates(FloorSpaceVar, [FloorCoord, _]),
+	orientationConstraint(Room1, FLoorCoord, Orientation, B),
+	orientationConstraint(Room2, FLoorCoord, Orientation, C),
+	(nonvar(C) -> A = (B #\/ C) ; A = B).
 
-% distribute potential orientation constraints
-orientationConstraint(RoomCoord, FloorCoord, [X| Xs], A):-
-	orientationConstraint(RoomCoord, FloorCoord, X, Z, B),
-	orientationConstraint(RoomCoord, FloorCoord, Xs, Z, C),
-	(nonvar(C) -> 
-		A = B #\/ C;
-		A = B;
-	).
-
-% distribute constraints on each subroom for L shaped rooms
-orientationConstraint([Room1, Room2], FloorCoord, X, A):-
-	orientationConstraint(Room1, FloorCoord, X, B),
-	orientationConstraint(Room2, FloorCoord, X, C),
-	A = B #\/ C.
 
 % collect constraints for rectangular rooms
 % return whatever for empty room 
-orientationConstraint([], _,_,_,_).
+orientationConstraint([], _,_,_).
 
 orientationConstraint([_,_,RoomY,RoomV], [_, _, _, FloorV], n, A):-
 	A = (RoomY + RoomV #= FloorV).
@@ -57,20 +48,20 @@ orientationConstraint([RoomX,_,_,_], _,  o, A):-
 orientationConstraint(RoomCoord, FloorCoord, ne, A):-
 	orientationConstraint(RoomCoord, FloorCoord, n, B),
 	orientationConstraint(RoomCoord, FloorCoord, e, C),
-	A = B #/\ C.
+	A = (B #/\ C).
 
 orientationConstraint(RoomCoord,FloorCoord,  no, A):-
 	orientationConstraint(RoomCoord, FloorCoord, n, B),
 	orientationConstraint(RoomCoord, FloorCoord, o, C),
-	A = B #/\ C.
+	A = (B #/\ C).
 
 orientationConstraint(RoomCoord,FloorCoord,  so, A):-
 	orientationConstraint(RoomCoord, FloorCoord, s, B),
 	orientationConstraint(RoomCoord, FloorCoord, o, C),
-	A = B #/\ C.
+	A = (B #/\ C).
 
 orientationConstraint(RoomCoord,FloorCoord,  se, A):-
 	orientationConstraint(RoomCoord, FloorCoord, s, B),
 	orientationConstraint(RoomCoord, FloorCoord, e, C),
-	A = B #/\ C.
+	A = (B #/\ C).
 

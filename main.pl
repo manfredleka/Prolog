@@ -22,6 +22,12 @@
 % non overlapping constraints
 :- consult(nonOverlappingConstraints).
 
+% adjacency constraints
+:- consult(adjacencyConstraints).
+
+% orientation constraints
+:- consult(orientationConstraints).
+
 % getters
 :- consult(getters).
 
@@ -34,7 +40,7 @@ getSum([SpaceVar | SpaceVarList], Sum):-
 	Sum #= Sum1 + Surf.
 
 % main algorithms
-main():-
+main(Solution):-
 	writeln('beginning main'),
 
 	IdMax = 10,
@@ -50,15 +56,17 @@ main():-
 	writeln('rooms variables created'),
 
 	writeln('initiating surface constraints posting'),
-	postSurfaceConstraints(FloorSpaceVar, SpaceVarList, Sum),
+	postSurfaceConstraints(SpaceVarList),
 	writeln('surface constraints posted'),				% checked
 
 	writeln('initiating orientation constraints posting'),
-	postOrientationConstraints(FloorSpaceVar, SpaceVarList),
+	findall(RoomName, contour(RoomName,_), OrientationRoomNames),
+	postOrientationConstraints(OrientationRoomNames, SpaceVarList, FloorSpaceVar),
 	writeln('orientation constraints posted'),			% checked
 
 	writeln('iniating adjacency constraints posting'),
-	postAdjacencyConstraints(SpaceVarList),				% checked
+	findall(RoomName, adj(RoomName, _), AdjRoomNames),
+	postAdjacencyConstraints(AdjRoomNames, SpaceVarList),				% checked
 	writeln('adjacency constraints posted'),
 
 	writeln('initiating non overlapping constraints posting'),
@@ -76,4 +84,6 @@ main():-
 	% collect the list of variables 
 	getAllCoordinates(FloorSpaceVar, SpaceVarList, AllVariables),
 	% orders the minimizing of lost space as solving strategy
-	labeling(min(LostSpace), AllVariables).
+	flatten(AllVariables, Variables),
+	labeling(min(LostSpace), Variables),
+	Solution = SpaceVarList.

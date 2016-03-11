@@ -85,5 +85,5 @@ main(Solution):-
 	getAllCoordinates(FloorSpaceVar, SpaceVarList, AllVariables),
 	% orders the minimizing of lost space as solving strategy
 	flatten(AllVariables, Variables),
-	labeling(min(LostSpace), Variables),
+	labeling([min(LostSpace)], Variables),
 	Solution = SpaceVarList.

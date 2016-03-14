@@ -40,7 +40,7 @@ getSum([SpaceVar | SpaceVarList], Sum):-
 	Sum #= Sum1 + Surf.
 
 % main algorithms
-main(Solution):-
+main(Solution, LostSpace2):-
 	writeln('beginning main'),
 
 	IdMax = 10,
@@ -86,4 +86,5 @@ main(Solution):-
 	% orders the minimizing of lost space as solving strategy
 	flatten(AllVariables, Variables),
 	labeling([min(LostSpace)], Variables),
+	LostSpace2 = LostSpace,
 	Solution = SpaceVarList.

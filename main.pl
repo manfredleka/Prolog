@@ -9,7 +9,6 @@
 % load problem definition 			NP
 :- consult(problem).
 
-
 % load cleaning rules for space facts 				TEST OK
 :- consult(cleanRules).
 
@@ -30,6 +29,9 @@
 
 % getters
 :- consult(getters).
+
+% svg writer
+:- consult(svgwriter).
 
 % compute lost space
 getSum([], 0).
@@ -87,4 +89,7 @@ main(Solution, LostSpace2):-
 	flatten(AllVariables, Variables),
 	labeling([min(LostSpace)], Variables),
 	LostSpace2 = LostSpace,
-	Solution = SpaceVarList.
+	Solution = SpaceVarList,
+
+	%write corresponding svg file
+	writeSvg(SpaceVarList, FloorSpaceVar).

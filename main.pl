@@ -7,7 +7,7 @@
 :- dynamic space/15.
 
 % load problem definition 			NP
-:- consult(problem).
+:- consult(problemTest).
 
 % load cleaning rules for space facts 				TEST OK
 :- consult(cleanRules).
@@ -33,6 +33,11 @@
 % svg writer
 :- consult(svgwriter).
 
+printSolution([]).
+
+printSolution([SpaceVar | SpaceVarList]):-
+	printSolution(SpaceVarList),
+	writeln(SpaceVar).
 % compute lost space
 getSum([], 0).
 
@@ -45,35 +50,35 @@ getSum([SpaceVar | SpaceVarList], Sum):-
 main(Solution, LostSpace2):-
 	writeln('beginning main'),
 
-	IdMax = 10,
+	findall(X, space(X, _,_,_,_,_,_,_,_,_,_,_,_,_,_), XList),
+	length(X, IdMax),
 
 	writeln('initating facts cleaning'),
 	cleanDB(IdMax),
-	writeln('facts cleaned'),
+	writeln('facts cleaned'), nl,
 
 	writeln('initiating variables creation'),
 	createSpaceVar(0,_,FloorSpaceVar),
 	writeln('floor variables created'),
 	createVariables(IdMax, FloorSpaceVar, SpaceVarList),
-	writeln('rooms variables created'),
-
-	writeln('initiating surface constraints posting'),
-	postSurfaceConstraints(SpaceVarList),
-	writeln('surface constraints posted'),				% checked
+	writeln('rooms variables created'), nl,
 
 	writeln('initiating orientation constraints posting'),
 	findall(RoomName, contour(RoomName,_), OrientationRoomNames),
 	postOrientationConstraints(OrientationRoomNames, SpaceVarList, FloorSpaceVar),
-	writeln('orientation constraints posted'),			% checked
+	writeln('orientation constraints posted'),	nl,
 
 	writeln('iniating adjacency constraints posting'),
 	findall(RoomName, adj(RoomName, _), AdjRoomNames),
-	postAdjacencyConstraints(AdjRoomNames, SpaceVarList),				% checked
-	writeln('adjacency constraints posted'),
+	postAdjacencyConstraints(AdjRoomNames, SpaceVarList), nl,
 
 	writeln('initiating non overlapping constraints posting'),
 	postNonOverlappingConstraints(SpaceVarList),
-	writeln('non overlapping constraints posted'),		% checked
+	writeln('non overlapping constraints posted'), nl,					
+
+	writeln('initiating surface constraints posting'),
+	postSurfaceConstraints(SpaceVarList),
+	writeln('surface constraints posted'), nl,
 
 	writeln('initiating labeling'),
 	% compute lost space
@@ -81,15 +86,17 @@ main(Solution, LostSpace2):-
 	LostSpace in 0..MaxSurf,
 	getSurf(FloorSpaceVar, FloorSurf),
 	getSum(SpaceVarList, Sum),
-	LostSpace #= FloorSurf - Sum,
+	LostSpace #= FloorSurf - Sum, 
 
 	% collect the list of variables 
 	getAllCoordinates(FloorSpaceVar, SpaceVarList, AllVariables),
 	% orders the minimizing of lost space as solving strategy
 	flatten(AllVariables, Variables),
-	labeling([min(LostSpace)], Variables),
+	once(labeling([min(LostSpace)], Variables)),
 	LostSpace2 = LostSpace,
 	Solution = SpaceVarList,
+	printSolution(SpaceVarList).
 
 	%write corresponding svg file
-	writeSvg(SpaceVarList, FloorSpaceVar).
+	%writeln('initiating svg file creation'),
+	%writeSvg(SpaceVarList, FloorSpaceVar).

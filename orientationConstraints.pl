@@ -15,19 +15,23 @@ postOrientationConstraints([RoomName | RoomNames], SpaceVarList, FloorSpaceVar):
 	getOrientationConstraint(RoomCoord, OrientationList, FloorSpaceVar, A),
 	call(A).
 
-getOrientationConstraint(_,[],_, _).
+getOrientationConstraint(RoomCoord,[AltOrientation], FloorSpaceVar, A):-
+	buildOrientationConstraint(RoomCoord, AltOrientation, FloorSpaceVar, A).
 
 getOrientationConstraint(RoomCoord, [AltOrientation1 | Alts], FloorSpaceVar, A):-
 	getOrientationConstraint(RoomCoord, Alts, FloorSpaceVar, C),
 	buildOrientationConstraint(RoomCoord, AltOrientation1, FloorSpaceVar, B),
-	(nonvar(C) -> A = (B #\/ C); A = B).
+	A = (B #\/ C).
+
+buildOrientationConstraint([Room1, []], Orientation, FloorSpaceVar, A):-
+	getCoordinates(FloorSpaceVar, [FloorCoord, _]),
+	orientationConstraint(Room1, FloorCoord, Orientation, A).
 
 buildOrientationConstraint([Room1, Room2], Orientation, FloorSpaceVar, A):-
 	getCoordinates(FloorSpaceVar, [FloorCoord, _]),
-	orientationConstraint(Room1, FLoorCoord, Orientation, B),
-	orientationConstraint(Room2, FLoorCoord, Orientation, C),
-	(nonvar(C) -> A = (B #\/ C) ; A = B).
-
+	orientationConstraint(Room1, FloorCoord, Orientation, B),
+	orientationConstraint(Room2, FloorCoord, Orientation, C),
+	A = (B #\/ C).
 
 % collect constraints for rectangular rooms
 % return whatever for empty room 

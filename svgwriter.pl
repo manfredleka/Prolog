@@ -1,11 +1,11 @@
 % SVG WRITER
+:- use_module(library(writef)).
 
 writeSvg(SpaceVarList, FloorSpaceVar):-
 	open('solution.svg', write, Stream),
 	initSvg(Stream),
-	getCoordinates(FloorSpaceVar, [_, FloorH, _ , FloorV]),
-	ColorList = [red, blue, green, yellow, grey, brown, orange, purple],
-	printSpaceVar(SpaceVarList, Stream, [FloorH, FloorV], ColorList),
+	getCoordinates(FloorSpaceVar, [[_, FloorH, _ , FloorV],[]]),
+	printSpaceVar(SpaceVarList, Stream, [FloorH, FloorV]),
 	closeSvg(Stream).
 
 initSvg(Stream):-
@@ -17,23 +17,24 @@ closeSvg(Stream):-
 	write(Stream, '</svg>'),
 	close(Stream).
 
-printSpaceVar([], _, _, _).
+printSpaceVar([], _, _).
 
-printSpaceVar([SpaceVar | SpaceVarList], Stream, FloorHV, ColorList):-
-	printSpaceVar(SpaceVarList, Stream, FloorHV, ColorList),
-	random_member(Color, ColorList),
+printSpaceVar([SpaceVar | SpaceVarList], Stream, FloorHV):-
+	printSpaceVar(SpaceVarList, Stream, FloorHV),
 	getCoordinates(SpaceVar, [Room1Coord, Room2Coord]),
-	draw_rectangle(Room1Coord, Color, Stream, FloorHV),
-	draw_rectangle(Room2Coord, Color, Stream, FloorHV).
+	draw_rectangle(Room1Coord, Stream, FloorHV),
+	draw_rectangle(Room2Coord, Stream, FloorHV).
 
-draw_rectangle([], _, _, _).
+draw_rectangle([], _, _).
 
-draw_rectangle([X, H, Y, V], Color, Stream, [FloorH, FloorV]):-
+draw_rectangle([X, H, Y, V], Stream, [FloorH, FloorV]):-
 	Xsvg is (div(800, FloorH) * X),
 	Ysvg is (div(600, FloorV) * Y),
 	WidthSvg is (H * div(FloorH, 800)),
 	HeightSvg is (V * div(FloorV, 600)),
-	write(Stream, format('<rect x="~d" y="~d" width="~d" height="~d" rx="0" style="fill:~d"/>', [Xsvg, Ysvg, WidthSvg, HeightSvg, Color])).
+	swritef(A, '<rect x="%t" y="%t" width="%t" height="%t" rx="0" style="fill:grey; border: 1px solid black"/>', [Xsvg, Ysvg, WidthSvg, HeightSvg]),
+	write(Stream, A),
+	nl(Stream).
 
 
 

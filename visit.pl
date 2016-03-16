@@ -1,8 +1,5 @@
 % Optimal visit path
 
-% arcs work both ways
-arc(X,Y) :- arc(Y,X).
-
 
 % Builds Graph from adjacency constraint
 buildGraph([]).
@@ -19,7 +16,20 @@ buildArcs(RoomName, [AdjRoomName | AdjRoomNames]):-
 	buildArcs(RoomName, AdjRoomNames),
 	space(RoomId, _, RoomName, _, _, _, _, _, _, _, _, _, _, _, _),
 	space(AdjRoomId, _, AdjRoomName, _, _, _, _, _, _, _, _, _, _, _, _),
-	asserta(arc(RoomId, AdjRoomId)).
+	buildArcsFromId(RoomId, [AdjRoomId]).
+
+buildArcsFromId(_, []).
+
+buildArcsFromId(RoomId, [AdjRoomId | AdjRoomIds]):-
+	buildArcsFromId(RoomId, AdjRoomIds),
+	asserta(arc(RoomId, AdjRoomId)),
+	asserta(arc(AdjRoomId, RoomId)).
+
+buildArcsFromId([]).
+
+buildArcsFromId([Id | Ids]):-
+	buildArcsFromId(Ids),
+	buildArcsFromId(Id, Ids).
 
 % build nodes
 buildNodes([]).
@@ -28,19 +38,13 @@ buildNodes([Id | Ids]):-
 	buildNodes(Ids),
 	asserta(node(Id)).
 
-% build arcs between all the elements of the list 2 by 2
-buildArcs([_]).
-
-buildArcs([RoomName | RoomNames]):-
-	buildArcs(RoomNames),
-	buildArcs(RoomName, RoomNames).
-
 % break arcs between CorrId and a list of Ids 
 breakArcs(_, []).
 
 breakArcs(CorrId, [AdjToCorr | AdjToCorrs]):-
 	breakArcs(CorrId, AdjToCorrs),
-	(arc(CorrId, AdjToCorr) -> retract(arc(CorrId, AdjToCorr)) ; retract(arc(AdjToCorr, CorrId))).
+	retract(arc(CorrId, AdjToCorr)),
+	retract(arc(AdjToCorr, CorrId)).
 
 % Cleans the graph
 % ie bypasses corridors
@@ -50,9 +54,9 @@ cleanGraph([]).
 cleanGraph([CorrId | CorrIds]):-
 	cleanGraph(CorrIds),
 	retract(node(CorrId)),
-	findall(AdjToCorr, arc(corrId, AdjToCorr), AdjToCorrs),
+	findall(AdjToCorr, arc(CorrId, AdjToCorr), AdjToCorrs),
 	breakArcs(CorrId, AdjToCorrs),
-	buildArcs(AdjToCorrs), 
+	buildArcsFromId(AdjToCorrs).
 
 % rules to generate path
 path(A, Z, Path) :- 
@@ -91,9 +95,20 @@ subset([A|L], S) :-
 % main rule, returns the optimal visit path
 visit(X):-
 	findall(Y, adj(Y,_), RoomNames),
+	writeln('initiating graph construction'),
 	buildGraph(RoomNames),
+	writeln('graph built'),
+
 	findall(Id, space(Id, _,_,_,_,_,_,_,_,_,_,_,_,_,_), Ids),
+	writeln('initiating nodes construction'),
 	buildNodes(Ids),
-	findall(CorrId, space(CorrId, corridor, _, _, _, _, _, _, _, _, _, _, _, _, _), CoorIds),
-	cleanGraph(CoorIds),
+	retract(node(0)),
+	writeln('nodes builts'),
+
+	findall(CorrId, space(CorrId, corridor, _, _, _, _, _, _, _, _, _, _, _, _, _), CorrIds),
+	writeln('initiating cleaning graphs of corridors'),
+	cleanGraph(CorrIds),
+	writeln('graph cleaned'),
+
+	writeln('initiating hamiltonian circuit search'),
 	hamiltonian(X).

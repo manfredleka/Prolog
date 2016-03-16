@@ -4,26 +4,28 @@
 % collect and post the adjacency constraints 
 postAdjacencyConstraints([] , _).
 
-postAdjacencyConstraints([AdjRoomName | AdjRoomNames], SpaceVarList):-
-	postAdjacencyConstraints(AdjRoomNames, SpaceVarList),
-	adj(AdjRoomName, AdjList),
-	getSpaceVarFromName(AdjRoomName, SpaceVarList, AdjRoomSpaceVar),
-	getCoordinates(AdjRoomSpaceVar, AdjRoomCoord),
-	getAdjacencyConstraint(AdjRoomCoord, AdjList, SpaceVarList, A),
+postAdjacencyConstraints([RoomName | ListAdjRoomNames], SpaceVarList):-
+	postAdjacencyConstraints(ListAdjRoomNames, SpaceVarList),
+	adj(RoomName, AdjRoomNames),
+	getAdjacencyConstraint(RoomName, AdjRoomNames, SpaceVarList, A),
 	call(A).
 
+getAdjacencyConstraint(RoomName, [AdjRoomName], SpaceVarList, A):-
+	getSpaceVarFromName(RoomName, SpaceVarList, RoomSpaceVar),
+	getCoordinates(RoomSpaceVar, RoomCoord),
+	getSpaceVarFromName(AdjRoomName, SpaceVarList, AdjRoomSpaceVar),
+	getCoordinates(AdjRoomSpaceVar, AdjRoomCoord),
+	adjacencyConstraint(RoomCoord, AdjRoomCoord, A).
 
-getAdjacencyConstraint(AdjRoomCoord, [Room1Name], SpaceVarList, A):-
-	getSpaceVarFromName(Room1Name, SpaceVarList, Room1SpaceVar),
-	getCoordinates(Room1SpaceVar, Room1Coord),
-	adjacencyConstraint(AdjRoomCoord, Room1Coord, A).
+getAdjacencyConstraint(RoomName, [AdjRoomName | AdjRoomNames], SpaceVarList, A):-
+	getAdjacencyConstraint(RoomName, AdjRoomNames, SpaceVarList, B),
+	getSpaceVarFromName(RoomName, SpaceVarList, RoomSpaceVar),
+	getCoordinates(RoomSpaceVar, RoomCoord),
+	getSpaceVarFromName(AdjRoomName, SpaceVarList, AdjRoomSpaceVar),
+	getCoordinates(AdjRoomSpaceVar, AdjRoomCoord),
+	adjacencyConstraint(RoomCoord, AdjRoomCoord, C),
+	A = (B #/\ C).
 
-getAdjacencyConstraint(AdjRoomCoord, [Room1Name | RoomNames], SpaceVarList, A):-
-	getAdjacencyConstraint(AdjRoomCoord, RoomNames,SpaceVarList, C),
-	getSpaceVarFromName(Room1Name, SpaceVarList, Room1SpaceVar),
-	getCoordinates(Room1SpaceVar, Room1Coord),
-	adjacencyConstraint(AdjRoomCoord, Room1Coord, B),
-	A = (B #/\ C).	
 
 % adjacency constraint on two rectangular rooms
 adjacencyConstraint([X1, H1, Y1, V1], [X2, H2, Y2, V2], A):-

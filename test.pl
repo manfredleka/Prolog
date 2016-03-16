@@ -12,10 +12,14 @@ contour(room2 , [s,n]).
 contour(room3 , [s,n]).
 contour(room4 , [s]).
 
+adj(living , [room1, room2]).
+adj(toilet, shower).
 
-test([Element]):-
-	writeln('queue vide').
+essai([X]):-
+	test([X]).
 
-test([Element| List]):-
-	writeln('queue non vide'),
-	test(List).
+test([]).
+
+test([X | Xs]):-
+	test(Xs),
+	writeln('queue non vide').

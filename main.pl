@@ -7,7 +7,7 @@
 :- dynamic space/15.
 
 % load problem definition 			NP
-:- consult(problemTest).
+:- consult(problem).
 
 % load cleaning rules for space facts 				TEST OK
 :- consult(cleanRules).
@@ -31,7 +31,7 @@
 :- consult(getters).
 
 % svg writer
-:- consult(svgwriter).
+%:- consult(svgwriter).
 
 printSolution([]).
 
@@ -50,8 +50,7 @@ getSum([SpaceVar | SpaceVarList], Sum):-
 main(Solution, LostSpace2):-
 	writeln('beginning main'),
 
-	findall(X, space(X, _,_,_,_,_,_,_,_,_,_,_,_,_,_), XList),
-	length(X, IdMax),
+	IdMax = 10,
 
 	writeln('initating facts cleaning'),
 	cleanDB(IdMax),
@@ -69,8 +68,10 @@ main(Solution, LostSpace2):-
 	writeln('orientation constraints posted'),	nl,
 
 	writeln('iniating adjacency constraints posting'),
-	findall(RoomName, adj(RoomName, _), AdjRoomNames),
-	postAdjacencyConstraints(AdjRoomNames, SpaceVarList), nl,
+	findall(X, adj(X, _), ListAdjNames),
+	postAdjacencyConstraints(ListAdjNames, SpaceVarList), nl,
+	writeln('adjacency constraints posted'),
+
 
 	writeln('initiating non overlapping constraints posting'),
 	postNonOverlappingConstraints(SpaceVarList),

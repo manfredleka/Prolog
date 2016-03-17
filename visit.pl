@@ -1,5 +1,5 @@
 % Optimal visit path
-
+:- consult(hamiltonian).
 
 % Builds Graph from adjacency constraint
 buildGraph([]).
@@ -7,29 +7,29 @@ buildGraph([]).
 buildGraph([RoomName | RoomNames]):-
 	buildGraph(RoomNames),
 	adj(RoomName, Y),
-	buildArcs(RoomName, Y).
+	buildEdges(RoomName, Y).
 
 % build arcs between RoomName and AdjRoomNames
-buildArcs(RoomName, []).
+buildEdges(RoomName, []).
 
-buildArcs(RoomName, [AdjRoomName | AdjRoomNames]):-
-	buildArcs(RoomName, AdjRoomNames),
+buildEdges(RoomName, [AdjRoomName | AdjRoomNames]):-
+	buildEdges(RoomName, AdjRoomNames),
 	space(RoomId, _, RoomName, _, _, _, _, _, _, _, _, _, _, _, _),
 	space(AdjRoomId, _, AdjRoomName, _, _, _, _, _, _, _, _, _, _, _, _),
-	buildArcsFromId(RoomId, [AdjRoomId]).
+	buildEdgesFromId(RoomId, [AdjRoomId]).
 
-buildArcsFromId(_, []).
+buildEdgesFromId(_, []).
 
-buildArcsFromId(RoomId, [AdjRoomId | AdjRoomIds]):-
-	buildArcsFromId(RoomId, AdjRoomIds),
-	asserta(arc(RoomId, AdjRoomId)),
-	asserta(arc(AdjRoomId, RoomId)).
+buildEdgesFromId(RoomId, [AdjRoomId | AdjRoomIds]):-
+	buildEdgesFromId(RoomId, AdjRoomIds),
+	(not(e(RoomId, AdjRoomId)) -> asserta(e(RoomId, AdjRoomId)); !),
+	(not(e(AdjRoomId, RoomId)) -> asserta(e(AdjRoomId, RoomId)); !).
 
-buildArcsFromId([]).
+buildEdgesFromId([]).
 
-buildArcsFromId([Id | Ids]):-
-	buildArcsFromId(Ids),
-	buildArcsFromId(Id, Ids).
+buildEdgesFromId([Id | Ids]):-
+	buildEdgesFromId(Ids),
+	buildEdgesFromId(Id, Ids).
 
 % build nodes
 buildNodes([]).
@@ -39,12 +39,12 @@ buildNodes([Id | Ids]):-
 	asserta(node(Id)).
 
 % break arcs between CorrId and a list of Ids 
-breakArcs(_, []).
+breakEdges(_, []).
 
-breakArcs(CorrId, [AdjToCorr | AdjToCorrs]):-
-	breakArcs(CorrId, AdjToCorrs),
-	retract(arc(CorrId, AdjToCorr)),
-	retract(arc(AdjToCorr, CorrId)).
+breakEdges(CorrId, [AdjToCorr | AdjToCorrs]):-
+	breakEdges(CorrId, AdjToCorrs),
+	(e(CorrId, AdjToCorr) -> retract(e(CorrId, AdjToCorr))),
+	(e(AdjToCorr, CorrId) -> retract(e(AdjToCorr, CorrId))).
 
 % Cleans the graph
 % ie bypasses corridors
@@ -54,43 +54,9 @@ cleanGraph([]).
 cleanGraph([CorrId | CorrIds]):-
 	cleanGraph(CorrIds),
 	retract(node(CorrId)),
-	findall(AdjToCorr, arc(CorrId, AdjToCorr), AdjToCorrs),
-	breakArcs(CorrId, AdjToCorrs),
-	buildArcsFromId(AdjToCorrs).
-
-% rules to generate path
-path(A, Z, Path) :- 
-          path1(A, [Z], Path).
-
-path1(A, [A|Path1], [A|Path1]).
-
-path1(A, [Y|Path1], Path) :-
-          arc(X,Y),
-          not_member(X, Path1),
-          path1(A, [X,Y|Path1], Path).
-
-not_member(X, []).
-not_member(X, [Y|L]) :-
-          not_member(X, L),
-          X \== Y. 
-
-member(X, [X|L]).
-member(X, [Y|L]) :- member(X, L).
-
-% additional rules to generate hamiltonian acyclic path
-hamiltonian(Path) :- 
-          path(A, Z, Path),
-          findall(X, node(X), Nodes),
-          eq_set(Path, Nodes).
-
-eq_set(P, N) :- 
-          subset(P,N),
-          subset(N,P).
-
-subset([], S).
-subset([A|L], S) :- 
-         member(A, S),
-         subset(L, S).
+	findall(AdjToCorr, e(CorrId, AdjToCorr), AdjToCorrs),
+	breakEdges(CorrId, AdjToCorrs),
+	buildEdgesFromId(AdjToCorrs).
 
 % main rule, returns the optimal visit path
 visit(X):-

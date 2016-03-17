@@ -5,7 +5,8 @@
 
 % make space definition dynamic to enable cleaning facts 
 :- dynamic space/15.
-:- dynamic arc/2.
+:- dynamic e/2.
+:- dynamic node/1.
 :- dynamic adj/2.
 
 % load problem definition 			NP

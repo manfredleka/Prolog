@@ -15,9 +15,6 @@ getV(SpaceVar, V):-
 getv(SpaceVar, Varv):-
 	arg(5, SpaceVar, Varv).
 
-getSurf(SpaceVar, Surf):-
-	arg(6, SpaceVar, Surf).
-
 getCoordinates(SpaceVar, Coord):-
 	arg(7, SpaceVar, Coord).
 

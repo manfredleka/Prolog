@@ -4,8 +4,8 @@
 % collect and post the adjacency constraints 
 postAdjacencyConstraints([] , _).
 
-postAdjacencyConstraints([RoomName | ListAdjRoomNames], SpaceVarList):-
-	postAdjacencyConstraints(ListAdjRoomNames, SpaceVarList),
+postAdjacencyConstraints([RoomName | ListRoomNames], SpaceVarList):-
+	postAdjacencyConstraints(ListRoomNames, SpaceVarList),
 	adj(RoomName, AdjRoomNames),
 	getAdjacencyConstraint(RoomName, AdjRoomNames, SpaceVarList, A),
 	call(A).
@@ -24,7 +24,7 @@ getAdjacencyConstraint(RoomName, [AdjRoomName | AdjRoomNames], SpaceVarList, A):
 	getSpaceVarFromName(AdjRoomName, SpaceVarList, AdjRoomSpaceVar),
 	getCoordinates(AdjRoomSpaceVar, AdjRoomCoord),
 	adjacencyConstraint(RoomCoord, AdjRoomCoord, C),
-	A = (B #/\ C).
+	A = (B #\/ C).
 
 
 % adjacency constraint on two rectangular rooms
@@ -34,6 +34,9 @@ adjacencyConstraint([X1, H1, Y1, V1], [X2, H2, Y2, V2], A):-
 		#\/ (((X2 + H2 #= X1) #\/ (X1 + H1 #= X2)) #/\ (((Y2 #< Y1) #/\ (Y2 + H2 #>= Y1 + 1))
 													#\/ ((Y2 #>= Y1) #/\ (Y2 + 1 #=< Y1 + H1))))).
 
+%adjacencyConstraint([X1, H1, Y1, V1], [X2, H2, Y2, V2], A):-
+%	A = ( (((X2+H2-X1 #>= 1)#\/(X1+H1-X2#>=1)) #/\ ((Y2+V2 #=Y1) #\/ (Y1+V1#=Y2))) 
+%			#\/ (((Y2+V2-Y1#>=1) #\/ (Y1+V1-Y1#>=1)) #/\ ((X2+H2 #=X1) #\/ (X1+H1 #= X2)))).
 
 % OR distribution of adjacency constraint for L shaped rooms
 adjacencyConstraint([] ,_ ,_):- !.

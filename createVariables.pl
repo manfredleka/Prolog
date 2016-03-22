@@ -29,7 +29,6 @@ createSpaceVar(Id, FloorSpaceVar, Z):-
 	RV in MinV..MaxV,
 	Rv in Minv..Maxv,
 	Rh in Minh..Maxh,
-	Surf in MinSurf..MaxSurf,
 	(Maxv =:= 0 ->
 		% if room is rectangular
 		RX1 + RH #=< FloorH,

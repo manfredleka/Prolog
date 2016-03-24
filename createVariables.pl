@@ -47,7 +47,7 @@ createSpaceVar(Id, FloorSpaceVar, Z):-
 		RX2 in 0..FloorH,
 		RY2 in 0..FloorV,
 		% adjacency of the second part to the first one
-		((RX2 #= RX1) #\/ (RX2 #= RX1 + h)) #/\ ((RY2 #= RY1 - Rv) #\/ (RY2 #= RY1 + RV - Rv)),
+		((RX2 #= RX1) #\/ (RX2 #= RX1 + Rh)) #/\ ((RY2 #= RY1 - Rv) #\/ (RY2 #= RY1 + RV - Rv)),
 		RH2 in 0..FloorH,
 		RH2 #= RH - Rh,
 		RX2 + RH2 #=< FloorH,

@@ -71,26 +71,23 @@ main(Solution):-
 	createVariables(IdMax, FloorSpaceVar, SpaceVarList),
 	writeln('rooms variables created'), nl,
 
-	writeln('iniating adjacency constraints posting'),
-	findall(X, adj(X, _), ListAdjNames),
-	postAdjacencyConstraints(ListAdjNames, SpaceVarList), 
-	writeln('adjacency constraints posted'), nl,
+	writeln('initiating orientation constraints posting'),
+	findall(RoomName, contour(RoomName,_), OrientationRoomNames),
+	postOrientationConstraints(OrientationRoomNames, SpaceVarList, FloorSpaceVar),
+	writeln('orientation constraints posted'),	nl,	
 
 	writeln('initiating non overlapping constraints posting'),
 	postNonOverlappingConstraints(SpaceVarList),
 	writeln('non overlapping constraints posted'), nl,	
 
-	writeln('initiating orientation constraints posting'),
-	findall(RoomName, contour(RoomName,_), OrientationRoomNames),
-	postOrientationConstraints(OrientationRoomNames, SpaceVarList, FloorSpaceVar),
-	writeln('orientation constraints posted'),	nl,		
+	writeln('initiating adjacency constraints posting'),
+	findall(X, adj(X, _), ListAdjNames),
+	postAdjacencyConstraints(ListAdjNames, SpaceVarList), 
+	writeln('adjacency constraints posted'), nl,
 
 	writeln('initiating surface constraints posting'),
 	postGalSurfConstraint(SpaceVarList, FloorSpaceVar),
 	writeln('surface constraints posted'), nl,
-
-
-
 
 %	compute lost space
 %	space(0, floor , _ , _, _, _, _, _, _, _, _, _, _, _, MaxSurf),
@@ -105,7 +102,7 @@ main(Solution):-
 	flatten(AllVariables, Variables),
 	writeln('initiating labeling'),
 
-	labeling([ff], Variables),
+	labeling([ff, up, bisect], Variables),
 	%LostSpace2 = LostSpace,
 	Solution = SpaceVarList,
 	printSolution(SpaceVarList).

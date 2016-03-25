@@ -10,7 +10,7 @@
 :- dynamic adj/2.
 
 % load problem definition 			NP
-:- consult(problem).
+:- consult(problemTest).
 
 % load cleaning rules for space facts 				TEST OK
 :- consult(cleanRules).
@@ -58,7 +58,7 @@ printSolution([SpaceVar | SpaceVarList]):-
 main(Solution):-
 	writeln('beginning main'),
 
-	IdMax = 10,
+	IdMax = 5,
 
 	writeln('initating facts cleaning'),
 	cleanDB(IdMax),

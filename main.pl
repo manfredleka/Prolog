@@ -110,3 +110,45 @@ main(Solution):-
 	%write corresponding svg file
 	%writeln('initiating svg file creation'),
 	%writeSvg(SpaceVarList, FloorSpaceVar).
+
+	testSolution(Floor, Sol):-
+	createVariables(Sol, SpaceVarList),
+	createFloor(Floor, FloorSpaceVar),
+
+	findall(X, adj(X, _), AdjListNames),
+	writeln('adjacency'), nl,
+	postAdjacencyConstraints(AdjListNames, SpaceVarList),
+	writeln('adjacency done'), nl, 
+
+	writeln('orientation'), nl,
+	findall(RoomName, contour(RoomName,_), OrientationRoomNames),
+	postOrientationConstraints(OrientationRoomNames, SpaceVarList, FloorSpaceVar),
+	writeln('orientation done'), nl,
+
+	writeln('non overlapping'), nl,
+	postNonOverlappingConstraints(SpaceVarList),
+	writeln('non overlapping done'), nl,
+
+	writeln('gal surf'), nl,
+	postGalSurfConstraint(SpaceVarList, FloorSpaceVar),
+	writeln('gal surf done'), nl.
+
+
+createVariables([], []).
+
+createVariables([spaceVar(Id, [[X, H, Y, V], []], Name) | SpaceVars], YYY):-
+	createVariables(SpaceVars, Z),
+	VX in X..X,
+	VH in H..H,
+	VY in Y..Y,
+	VV in V..V,
+	YY = [spaceVar(Id, [[VX, VH, VY, VV],[]], Name), Z],
+	flatten(YY, YYY).
+
+
+createFloor(spaceVar(0, [[X,H,Y,V],[]], floor), FloorSpaceVar):-
+	VX in X..X,
+	VH in H..H,
+	VY in Y..Y,
+	VV in V..V,
+	FloorSpaceVar = spacevar(0, [[VX, VH, VY, VV], []], floor).

@@ -20,7 +20,7 @@ nonOverlapping2([], _).
 nonOverlapping2(_, []).
 
 nonOverlapping2([X1,H1,Y1,V1], [X2,H2,Y2,V2]):-
-	((X2 #>= X1 + H1) #\/ (X1 #>= X2 + H2) #\/ (Y2 #>= Y1 + V1) #\/ (Y1 #>= Y2 + V2)).
+	((X2 #>= X1 + H1)#\/(X1 #>= X2 + H2)#\/(Y2 #>= Y1 + V1)#\/(Y1 #>= Y2 + V2)).
 
 
 nonOverlapping([Room1, Room2], [Room3, Room4]):-

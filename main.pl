@@ -105,7 +105,7 @@ main(Solution):-
 	flatten(AllVariables, Variables),
 	writeln('initiating labeling'),
 
-	labeling([ffc, up, bisect], Variables),
+	labeling([ffc, up, step], Variables),
 	%LostSpace2 = LostSpace,
 	Solution = SpaceVarList,
 	printSolution(SpaceVarList).
@@ -113,3 +113,6 @@ main(Solution):-
 	%write corresponding svg file
 	%writeln('initiating svg file creation'),
 	%writeSvg(SpaceVarList, FloorSpaceVar).
+
+	test(X):-
+		X #>= 2.

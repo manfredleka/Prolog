@@ -105,7 +105,7 @@ main(Solution):-
 	flatten(AllVariables, Variables),
 	writeln('initiating labeling'),
 
-	labeling([ff, up, bisect], Variables),
+	labeling([ff,up, bisect], Variables),
 	%LostSpace2 = LostSpace,
 	Solution = SpaceVarList,
 	printSolution(SpaceVarList).

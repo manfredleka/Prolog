@@ -60,6 +60,7 @@ main(Solution):-
 
 	IdMax = 10,
 
+
 	writeln('initating facts cleaning'),
 	cleanDB(IdMax),
 	writeln('facts cleaned'), nl,
@@ -70,25 +71,23 @@ main(Solution):-
 	createVariables(IdMax, FloorSpaceVar, SpaceVarList),
 	writeln('rooms variables created'), nl,
 
-%	writeln('iniating adjacency constraints posting'),
-%	findall(X, adj(X, _), ListAdjNames),
-%	postAdjacencyConstraints(ListAdjNames, SpaceVarList), 
-%	writeln('adjacency constraints posted'), nl,
-
-
-%	writeln('initiating orientation constraints posting'),
-%	findall(RoomName, contour(RoomName,_), OrientationRoomNames),
-%	postOrientationConstraints(OrientationRoomNames, SpaceVarList, FloorSpaceVar),
-%	writeln('orientation constraints posted'),	nl,		
-
-%	writeln('initiating surface constraints posting'),
-%	postGalSurfConstraint(SpaceVarList, FloorSpaceVar),
-%	writeln('surface constraints posted'), nl,
+	writeln('initiating orientation constraints posting'),
+	findall(RoomName, contour(RoomName,_), OrientationRoomNames),
+	postOrientationConstraints(OrientationRoomNames, SpaceVarList, FloorSpaceVar),
+	writeln('orientation constraints posted'),	nl,	
 
 	writeln('initiating non overlapping constraints posting'),
 	postNonOverlappingConstraints(SpaceVarList),
 	writeln('non overlapping constraints posted'), nl,	
 
+	writeln('initiating adjacency constraints posting'),
+	findall(X, adj(X, _), ListAdjNames),
+	postAdjacencyConstraints(ListAdjNames, SpaceVarList), 
+	writeln('adjacency constraints posted'), nl,
+
+%	writeln('initiating surface constraints posting'),
+%	postGalSurfConstraint(SpaceVarList, FloorSpaceVar),
+%	writeln('surface constraints posted'), nl,
 
 %	compute lost space
 %	space(0, floor , _ , _, _, _, _, _, _, _, _, _, _, _, MaxSurf),
@@ -104,6 +103,7 @@ main(Solution):-
 	writeln('initiating labeling'),
 
 	labeling([ff, up, bisect], Variables),
+
 	%LostSpace2 = LostSpace,
 	Solution = SpaceVarList,
 	printSolution(SpaceVarList).
@@ -111,3 +111,45 @@ main(Solution):-
 	%write corresponding svg file
 	%writeln('initiating svg file creation'),
 	%writeSvg(SpaceVarList, FloorSpaceVar).
+
+testSolution(Floor, Sol):-
+	createVariables(Sol, SpaceVarList),
+	createFloor(Floor, FloorSpaceVar),
+
+	findall(X, adj(X, _), AdjListNames),
+	writeln('adjacency'), nl,
+	postAdjacencyConstraints(AdjListNames, SpaceVarList),
+	writeln('adjacency done'), nl, 
+
+	writeln('orientation'), nl,
+	findall(RoomName, contour(RoomName,_), OrientationRoomNames),
+	postOrientationConstraints(OrientationRoomNames, SpaceVarList, FloorSpaceVar),
+	writeln('orientation done'), nl,
+
+	writeln('non overlapping'), nl,
+	postNonOverlappingConstraints(SpaceVarList),
+	writeln('non overlapping done'), nl,
+
+	writeln('gal surf'), nl,
+	postGalSurfConstraint(SpaceVarList, FloorSpaceVar),
+	writeln('gal surf done'), nl.
+
+
+createVariables([], []).
+
+createVariables([spaceVar(Id, [[X, H, Y, V], []], Name) | SpaceVars], YYY):-
+	createVariables(SpaceVars, Z),
+	VX in X..X,
+	VH in H..H,
+	VY in Y..Y,
+	VV in V..V,
+	YY = [spaceVar(Id, [[VX, VH, VY, VV],[]], Name), Z],
+	flatten(YY, YYY).
+
+
+createFloor(spaceVar(0, [[X,H,Y,V],[]], floor), FloorSpaceVar):-
+	VX in X..X,
+	VH in H..H,
+	VY in Y..Y,
+	VV in V..V,
+	FloorSpaceVar = spacevar(0, [[VX, VH, VY, VV], []], floor).

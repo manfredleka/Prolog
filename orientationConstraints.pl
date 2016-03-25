@@ -43,6 +43,7 @@ buildOrientationConstraint([Room1, Room2], Orientation, FloorSpaceVar, A):-
 
 % collect constraints for rectangular rooms
 % return whatever for empty room 
+
 orientationConstraint([], _,_,_).
 
 orientationConstraint([_,_,RoomY,RoomV], [_, _, _, FloorV], n, A):-

@@ -17,7 +17,7 @@ createSpaceVar(0, _, Z):-
 	Varv in Minv..Maxv,
 	X in 0..0,
 	Y in 0..0,
-	Z = spaceVar(0, VarH, Varh, VarV, Varv, _, [[X,VarH,Y,VarV],[]], Name).
+	Z = spaceVar(0, [[X,VarH,Y,VarV],[]], Name).
 
 % Create the position variables and take care of position constraints and adjacency of the two parts of L shaped rooms
 createSpaceVar(Id, FloorSpaceVar, Z):-
@@ -47,7 +47,7 @@ createSpaceVar(Id, FloorSpaceVar, Z):-
 		RX2 in 0..FloorH,
 		RY2 in 0..FloorV,
 		% adjacency of the second part to the first one
-		((RX2 #= RX1) #\/ (RX2 #= RX1 + h)) #/\ ((RY2 #= RY1 - Rv) #\/ (RY2 #= RY1 + RV - Rv)),
+		((RX2 #= RX1) #\/ (RX2 #= RX1 + Rh)) #/\ ((RY2 #= RY1 - Rv) #\/ (RY2 #= RY1 + RV - Rv)),
 		RH2 in 0..FloorH,
 		RH2 #= RH - Rh,
 		RX2 + RH2 #=< FloorH,
@@ -56,4 +56,4 @@ createSpaceVar(Id, FloorSpaceVar, Z):-
 		RH * RV1 + RH2 * RV #>= MinSurf,
 		W = [[RX1, RH, RY1, RV1], [RX2, RH2, RY2, Rv]]
 	),
-	Z = spaceVar(Id, RH, Rh, RV, Rv, _, W, Name).
+	Z = spaceVar(Id, W, Name).

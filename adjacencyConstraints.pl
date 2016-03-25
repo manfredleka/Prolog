@@ -29,12 +29,7 @@ getAdjacencyConstraint(RoomName, [AdjRoomName | AdjRoomNames], SpaceVarList, A):
 
 % adjacency constraint on two rectangular rooms
 adjacencyConstraint([X1, H1, Y1, V1], [X2, H2, Y2, V2], A):-
-	A = (#\(
-			((X1 #>= X2+H2) #/\(Y1#>=Y2+V2)) 
-			#\/ ((X1#>=X2+H2)#/\(Y1#=<Y2-V1))
-			#\/ ((X1#=<X2-H1)#/\(Y1#=<Y2-V1))
-			#\/ ((X1#=<X2-H1)#/\(Y1#>=Y2+V2))
-			)).
+	A = (#\(((X1 #>= X2+H2) #/\(Y1#>=Y2+V2))#\/ ((X1#>=X2+H2)#/\(Y1#=<Y2-V1))#\/ ((X1#=<X2-H1)#/\(Y1#=<Y2-V1))#\/((X1#=<X2-H1)#/\(Y1#>=Y2+V2)))).
 
 % OR distribution of adjacency constraint for L shaped rooms
 % sinon adjacencyConstraint([], _,_). + check si nonvar(A) avant call mais 

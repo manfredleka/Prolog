@@ -10,7 +10,7 @@
 :- dynamic adj/2.
 
 % load problem definition 			NP
-:- consult(problemTest).
+:- consult(problem).
 
 % load cleaning rules for space facts 				TEST OK
 :- consult(cleanRules).
@@ -58,7 +58,7 @@ printSolution([SpaceVar | SpaceVarList]):-
 main(Solution):-
 	writeln('beginning main'),
 
-	IdMax = 5,
+	IdMax = 10,
 
 	writeln('initating facts cleaning'),
 	cleanDB(IdMax),
@@ -80,10 +80,10 @@ main(Solution):-
 	postNonOverlappingConstraints(SpaceVarList),
 	writeln('non overlapping constraints posted'), nl,	
 
-	writeln('initiating adjacency constraints posting'),
-	findall(X, adj(X, _), ListAdjNames),
-	postAdjacencyConstraints(ListAdjNames, SpaceVarList), 
-	writeln('adjacency constraints posted'), nl,
+%	writeln('initiating adjacency constraints posting'),
+%	findall(X, adj(X, _), ListAdjNames),
+%	postAdjacencyConstraints(ListAdjNames, SpaceVarList), 
+%	writeln('adjacency constraints posted'), nl,
 
 	writeln('initiating surface constraints posting'),
 	postGalSurfConstraint(SpaceVarList, FloorSpaceVar),

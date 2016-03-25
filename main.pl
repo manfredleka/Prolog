@@ -80,10 +80,10 @@ main(Solution):-
 	postNonOverlappingConstraints(SpaceVarList),
 	writeln('non overlapping constraints posted'), nl,	
 
-%	writeln('initiating adjacency constraints posting'),
-%	findall(X, adj(X, _), ListAdjNames),
-%	postAdjacencyConstraints(ListAdjNames, SpaceVarList), 
-%	writeln('adjacency constraints posted'), nl,
+	writeln('initiating adjacency constraints posting'),
+	findall(X, adj(X, _), ListAdjNames),
+	postAdjacencyConstraints(ListAdjNames, SpaceVarList), 
+	writeln('adjacency constraints posted'), nl,
 
 	writeln('initiating surface constraints posting'),
 	postGalSurfConstraint(SpaceVarList, FloorSpaceVar),

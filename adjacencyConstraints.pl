@@ -24,15 +24,15 @@ getAdjacencyConstraint(RoomName, [AdjRoomName | AdjRoomNames], SpaceVarList, A):
 	getSpaceVarFromName(AdjRoomName, SpaceVarList, AdjRoomSpaceVar),
 	getCoordinates(AdjRoomSpaceVar, AdjRoomCoord),
 	adjacencyConstraint(RoomCoord, AdjRoomCoord, C),
-	A = (B #\/ C).   % marche qu'avec ET pas avec OU...
+	A = (B#\/C).   % marche qu'avec ET pas avec OU...
 
 
 % adjacency constraint on two rectangular rooms
 adjacencyConstraint([X1, H1, Y1, V1], [X2, H2, Y2, V2], A):-
-	A = (#\(((X1 #>= X2+H2) #/\(Y1#>=Y2+V2))#\/ ((X1#>=X2+H2)#/\(Y1#=<Y2-V1))#\/ ((X1#=<X2-H1)#/\(Y1#=<Y2-V1))#\/((X1#=<X2-H1)#/\(Y1#>=Y2+V2)))).
+	A = ((((Y2 #= Y1 + V1)#\/(Y2 + V2 #= Y1))#/\(((X2 #=< X1)#/\(X2 + H2 #>= X1 + 1))#\/((X2 #>= X1)#/\(X2 + 1 #=< X1 + H1))))#\/(((X2 + H2 #= X1)#\/(X1 + H1 #= X2))#/\(((Y2 #=< Y1)#/\(Y2 + V2 #>= Y1 + 1))#\/((Y2 #>= Y1)#/\(Y2 + 1 #=< Y1 + V1))))).
 
 % OR distribution of adjacency constraint for L shaped rooms
-% sinon adjacencyConstraint([], _,_). + check si nonvar(A) avant call mais 
+adjacencyConstraint([] ,_ ,_). % sinon adjacencyConstraint([], _,_). + check si nonvar(A) avant call mais 
 % problème d'argument insuffisamment instancié quand même...
 
 adjacencyConstraint([Room1, []], Room2, A):-
@@ -44,7 +44,6 @@ adjacencyConstraint(Room1, [Room2, Room3], A):-
 adjacencyConstraint([Room1, Room2], Room3, A):-
 	adjacencyConstraint(Room1, Room3, B),
 	adjacencyConstraint(Room2, Room3, C),
-	A = (B #\/ C).
-
+	A = (B#\/C).
 
 

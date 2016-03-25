@@ -23,14 +23,14 @@ contour(room3 , [s,n]).
 contour(room4 , [s]).
 
 % adj(room or corridor, list of rooms or corridors).
-adj(living , [corridor1,corridor2]).
-adj(shower , [corridor1,corridor2]).
-adj(toilet, [corridor1,corridor2]).
-adj(room1 , [corridor1,corridor2]).
-adj(room2 , [corridor1,corridor2]).
-adj(room3 , [corridor1,corridor2]).
-adj(room4 , [corridor1,corridor2]).
-adj(kitchen , [living]).
-adj(kitchen , [shower]).
-adj(toilet, [kitchen,shower]).
-adj(corridor1, [corridor2]).
+%adj(living , [corridor1,corridor2]).
+%adj(shower , [corridor1,corridor2]).
+%adj(toilet, [corridor1,corridor2]).
+%adj(room1 , [corridor1,corridor2]).
+%adj(room2 , [corridor1,corridor2]).
+%adj(room3 , [corridor1,corridor2]).
+%adj(room4 , [corridor1,corridor2]).
+%adj(kitchen , [living]).
+%adj(kitchen , [shower]).
+%adj(toilet, [kitchen,shower]).
+%adj(corridor1, [corridor2]).

@@ -60,6 +60,7 @@ main(Solution):-
 
 	IdMax = 10,
 
+
 	writeln('initating facts cleaning'),
 	cleanDB(IdMax),
 	writeln('facts cleaned'), nl,
@@ -102,7 +103,7 @@ main(Solution):-
 	flatten(AllVariables, Variables),
 	writeln('initiating labeling'),
 
-	labeling([ff, up, bisect], Variables),
+	labeling([], Variables),
 	%LostSpace2 = LostSpace,
 	Solution = SpaceVarList,
 	printSolution(SpaceVarList).
@@ -111,7 +112,7 @@ main(Solution):-
 	%writeln('initiating svg file creation'),
 	%writeSvg(SpaceVarList, FloorSpaceVar).
 
-	testSolution(Floor, Sol):-
+testSolution(Floor, Sol):-
 	createVariables(Sol, SpaceVarList),
 	createFloor(Floor, FloorSpaceVar),
 

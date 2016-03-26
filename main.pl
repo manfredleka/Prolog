@@ -85,9 +85,9 @@ main(Solution):-
 	postAdjacencyConstraints(ListAdjNames, SpaceVarList), 
 	writeln('adjacency constraints posted'), nl,
 
-%	writeln('initiating surface constraints posting'),
-%	postGalSurfConstraint(SpaceVarList, FloorSpaceVar),
-%	writeln('surface constraints posted'), nl,
+	writeln('initiating surface constraints posting'),
+	postGalSurfConstraint(SpaceVarList, FloorSpaceVar),
+	writeln('surface constraints posted'), nl,
 
 %	compute lost space
 %	space(0, floor , _ , _, _, _, _, _, _, _, _, _, _, _, MaxSurf),

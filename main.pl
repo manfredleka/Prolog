@@ -100,6 +100,8 @@ main(Solution):-
 	getAllCoordinates(FloorSpaceVar, SpaceVarList, AllVariables),
 	% orders the minimizing of lost space as solving strategy
 	flatten(AllVariables, Variables),
+	clpfd:contracting(Variables),
+
 	writeln('initiating labeling'),
 
 	labeling([ff, up, bisect], Variables),
